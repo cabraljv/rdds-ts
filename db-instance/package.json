@@ -1,0 +1,27 @@
+{
+  "name": "db-instance",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@grpc/grpc-js": "^1.13.2",
+    "@grpc/proto-loader": "^0.7.13",
+    "ioredis": "^5.6.0",
+    "md5": "^2.3.0",
+    "pg": "^8.14.1",
+    "redis": "^4.7.0",
+    "ts-node": "^10.9.2",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@types/md5": "^2.3.5",
+    "@types/node": "^22.14.0",
+    "@types/pg": "^8.11.11",
+    "@types/uuid": "^10.0.0",
+    "typescript": "^5.8.3"
+  }
+}

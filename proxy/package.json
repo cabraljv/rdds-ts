@@ -1,0 +1,19 @@
+{
+  "name": "load-balancer",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "ts-node src/proxy.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "ts-node": "^10.9.2",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "@types/uuid": "^10.0.0",
+    "typescript": "^5.8.3"
+  }
+}

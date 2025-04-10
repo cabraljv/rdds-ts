@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package sync;
+
+service SyncService {
+  rpc ExecQueryFromLoadBalancer (QueryRequest) returns (QueryResponse);
+  rpc ExecQueryFromSiblingInstance (QueryRequest) returns (QueryResponse);
+  rpc HealthCheckDatabase (HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+message QueryRequest {
+  string queryId = 1;
+}
+
+message QueryResponse {
+  bool success = 1;
+  string message = 2;
+  string resultJson = 3; // resultado em formato JSON serializado
+}
+
+message HealthCheckRequest {
+  // pode expandir no futuro (ex: incluir metadata)
+}
+
+message HealthCheckResponse {
+  bool healthy = 1;
+  string message = 2;
+}
