@@ -5,6 +5,7 @@ import { RequestController } from './controller/requests';
 import { RedisService } from './services/redis';
 import { Pool } from 'pg';
 import DatabaseService from './services/database';
+import { GrpcClient } from './services/grpc-client';
 
 console.log('Starting DB Instance');
 
@@ -38,7 +39,8 @@ function startServer() {
     port: parseInt(process.env.DB_PORT || '5432'),
   });
   const databaseService = new DatabaseService(pg);
-  const requestController = new RequestController(databaseService, redisService);
+  const grpcClient = new GrpcClient();
+  const requestController = new RequestController(databaseService, redisService, grpcClient);
 
   server.addService(syncPackage.SyncService.service, {
     ExecQueryFromLoadBalancer: async (call: any, callback: any) =>

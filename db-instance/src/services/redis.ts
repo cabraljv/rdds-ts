@@ -42,9 +42,8 @@ export class RedisService {
     return JSON.parse(query);
   }
 
-  getAllQueriesFromTable(tableName: string) {
-  }
-  addQueryToTable(tableName: string, query: RedisSqlQuery, instanceId: string) {
+  async getExecutedInstancesFromQuery(queryId: string) {
+    return await this.redis.smembers(md5(`${queryId}:executed`));
   }
   async setQueryAsExecutedByInstance(queryId: string, instanceId: string) {
     await this.redis.sadd(md5(`${queryId}:executed`), instanceId);
@@ -52,7 +51,9 @@ export class RedisService {
     const executedInstances = await this.redis.smembers(md5(`${queryId}:executed`));
     const notExecutedInstances = ALL_INSTANCES_IDS.filter(instanceId => !executedInstances.includes(instanceId));
     if (notExecutedInstances.length === 0) {
+      console.log('Query executed in all instances', queryId);
       await this.redis.del(md5(queryId));
+      await this.redis.del(md5(`${queryId}:executed`));
       return true; // query was executed in all instances
     }
     return false; // query was not executed in all instances

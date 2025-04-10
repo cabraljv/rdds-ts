@@ -1,16 +1,18 @@
 import DatabaseService from "../services/database";
 import { RedisService } from "../services/redis";
 import { GRPCResponses } from "../utils/responses";
-
+import { GrpcClient } from "../services/grpc-client";
 const INSTANCE_ID = process.env.INSTANCE_ID || '';
 
 export class RequestController {
   private databaseService: DatabaseService;
   private redisService: RedisService;
+  private grpcClient: GrpcClient;
 
-  constructor(databaseService: DatabaseService, redisService: RedisService) {
+  constructor(databaseService: DatabaseService, redisService: RedisService, grpcClient: GrpcClient) {
     this.databaseService = databaseService;
     this.redisService = redisService;
+    this.grpcClient = grpcClient;
   }
 
   async handleHealthCheck() {
@@ -37,7 +39,7 @@ export class RequestController {
       const result = await this.databaseService.executeQuery(query.query);
       const isExecutedInAllInstances = await this.redisService.setQueryAsExecutedByInstance(queryId, INSTANCE_ID);
       if (!isExecutedInAllInstances) {
-        // TODO: send query to other instances
+        await this.grpcClient.sendQueryToAllSiblingInstances(queryId);
       }
       return GRPCResponses.success(result);
     }
@@ -45,6 +47,23 @@ export class RequestController {
   }
 
   async handleSiblingInstanceQuery(queryId: string) {
-    // TODO: send query to other instances
+    console.log('Handling sibling instance query', queryId);
+
+    const query = await this.redisService.getQueryFromRedis(queryId);
+    if (!query) {
+      return GRPCResponses.error('Query not found');
+    }
+    console.log('Query found', query);
+
+    const executedInstances = await this.redisService.getExecutedInstancesFromQuery(queryId);
+    console.log('Executed instances', executedInstances);
+
+    const alreadyExecuted = executedInstances.includes(INSTANCE_ID);
+    if (alreadyExecuted) {
+      return GRPCResponses.success({message: 'Query already executed'});
+    }
+    const result = await this.databaseService.executeQuery(query.query);
+    await this.redisService.setQueryAsExecutedByInstance(queryId, INSTANCE_ID);
+    return GRPCResponses.success(result);
   }
 }
